@@ -1,24 +1,49 @@
-import logo from './logo.svg';
-import './App.css';
+import { set, useForm } from "react-hook-form";
 
 function App() {
+  const { register, handleSubmit, setValue, setFocus } = useForm();
+  const onSubmit = (e) => {
+    console.log(e);
+  };
+
+  const checkCep = (e) => {
+    const cep = e.target.value.replace(/\D/g, '');
+    console.log(cep);
+    fetch(`https://viacep.com.br/ws/${cep}/json/`)
+    .then(response => response.json()).then(data => {
+      console.log(data);
+      setValue('address', data.logradouro);
+      setValue('neighborhood', data.bairro);
+      setValue('city', data.localidade);
+      setValue ('uf', data.uf);
+      setFocus('addressNumber');
+    })
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <label>
+        CEP:
+        <input type="text" {...register("cep")} onBlur={checkCep} />
+      </label>
+      <label>
+        Rua:
+        <input type="text" {...register("address")} />
+      </label>
+      <label>
+        Numero:
+        <input type="text" {...register("addressNumber")} />
+      </label>
+      <label>
+        Bairro:
+        <input type="text" {...register("neighborhood")} />
+      </label>
+      <label>
+        Estado:
+        <input type="text" {...register("uf")} />
+      </label>
+      <button type="submit">Enviar</button>
+    </form>
   );
 }
 
